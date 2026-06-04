@@ -3,17 +3,6 @@ import react from "@vitejs/plugin-react";
 import { federation } from "@module-federation/vite";
 import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 
-// Shared singletons — lit + bion web components must resolve to one instance
-// across every MFE (incl. the Vue cart) or `customElements.define` double-fires.
-const bion = {
-  lit: { singleton: true },
-  "lit/": { singleton: true },
-  "@bion-mfe-ui/core": { singleton: true },
-  "@bion-mfe-ui/core/": { singleton: true },
-  "@bion-mfe-ui/icons": { singleton: true },
-  "@bion-mfe-ui/tokens": { singleton: true },
-};
-
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd());
   const port = Number(env.VITE_PORT) || 3001;
@@ -33,24 +22,18 @@ export default defineConfig(({ mode }) => {
         exposes: {
           "./App": "./src/App.tsx",
         },
+        // Only React is shared (consumed from the host as a singleton so the
+        // catalog renders as a real React child). lit + @bion-mfe-ui are bundled
+        // here, not shared — see the shell config for why (collapses the MF
+        // request waterfall; double-define is guarded by core@^0.1.2).
         shared: {
           react: { singleton: true },
           "react-dom": { singleton: true },
           "react-dom/": { singleton: true },
-          ...bion,
         },
       }),
       cssInjectedByJsPlugin(),
     ],
-    optimizeDeps: {
-      exclude: [
-        "@bion-mfe-ui/react",
-        "@bion-mfe-ui/core",
-        "@bion-mfe-ui/icons",
-        "@bion-mfe-ui/tokens",
-        "lit",
-      ],
-    },
     build: { target: "chrome89" },
   };
 });
