@@ -23,6 +23,48 @@ Three **separate, independently deployable repos**, wired at runtime via
 
 ---
 
+## Architecture
+
+> **You are here: `fe-catalog`** — a React remote the shell renders as a child.
+
+```mermaid
+flowchart TD
+    user([User / Browser])
+    shell["fe-shell — React host (:3000)<br/>header · footer · search · event-bus bridge"]
+    catalog["fe-catalog — React remote (:3001)<br/>hero · product grid · filters"]
+    cart["fe-cart — Vue remote (:3002)<br/>cart drawer + state"]
+
+    user --> shell
+    shell -->|"lazy import('catalog/App') · direct props"| catalog
+    catalog -.->|"onAddToCart(product) callback"| shell
+    shell ==>|"window event: cart:add-item · cart:open"| cart
+    cart ==>|"window event: cart:count (→ header badge)"| shell
+
+    style shell fill:#eef6ff,stroke:#2563eb,stroke-width:2px
+    style catalog fill:#eefaf0,stroke:#0a8f54,stroke-width:4px
+    style cart fill:#fff4e8,stroke:#b35e0c,stroke-width:2px
+```
+
+**Legend** — **solid** = host loads/consumes a remote (same-framework, direct props) · **dashed** = React callback back to the host · **thick** = cross-framework `window` event bus.
+
+### Add-to-cart flow
+
+```mermaid
+sequenceDiagram
+    actor U as User
+    participant C as fe-catalog (React)
+    participant S as fe-shell (host)
+    participant K as fe-cart (Vue)
+    U->>C: click "+" on a product
+    C->>S: onAddToCart(product) — React prop (direct)
+    S->>K: window "cart:add-item" { product }
+    Note over K: add / increment line, open drawer
+    K-->>S: window "cart:count" { count }
+    Note over S: header badge → "Keranjang (n)"
+```
+
+---
+
 ## What this remote does
 
 - Renders the **hero carousel**, **product grid** (`PRODUCTS` → `<ProductCard>`),
