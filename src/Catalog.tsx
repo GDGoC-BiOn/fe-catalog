@@ -62,9 +62,10 @@ export function Catalog({ onAddToCart, query }: CatalogProps) {
             tag={p.tag ?? undefined}
             rating={p.rate}
             reviews={p.rev}
-            // React → React: a plain callback up to the shell, which forwards
-            // it to the Vue cart over the event bus.
-            onAdd={() => onAddToCart(p)}
+            // STARTER: inter-MFE callback commented out — clicking + does nothing.
+            // Uncomment to wire it back (React → React up to the shell):
+            // onAdd={() => onAddToCart(p)}
+            onAdd={() => {}}
           />
         ))}
       </section>
