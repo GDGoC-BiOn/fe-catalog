@@ -71,7 +71,7 @@ export function Catalog({ onAddToCart, query }: CatalogProps) {
 
       <section className="promo">
         <div>
-          <h2>Gratis ongkir ke seluruh Indonesia</h2>
+          <h2>Gratis ongkir ke seluruh Pulau Jawa</h2>
           <p>
             Minimal belanja Rp 300rb, berlaku untuk semua kategori hingga akhir
             bulan.
